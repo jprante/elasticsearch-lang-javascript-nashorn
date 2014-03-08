@@ -34,6 +34,8 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import javax.script.SimpleScriptContext;
 
 import java.util.List;
 import java.util.Map;
@@ -43,18 +45,13 @@ import java.util.Map;
  */
 public class NashornScriptEngineService extends AbstractComponent implements ScriptEngineService {
 
-    private final static ScriptEngineManager manager = new ScriptEngineManager();
-
-    private final ThreadLocal<ScriptEngine> engine = new ThreadLocal<ScriptEngine>() {
-        @Override
-        protected ScriptEngine initialValue() {
-            return manager.getEngineByName("nashorn");
-        }
-    };
+    private final ScriptEngine engine;
 
     @Inject
     public NashornScriptEngineService(Settings settings) {
         super(settings);
+        ScriptEngineManager manager = new ScriptEngineManager();
+        this.engine = manager.getEngineByName("nashorn");
     }
 
     @Override
@@ -63,19 +60,19 @@ public class NashornScriptEngineService extends AbstractComponent implements Scr
 
     @Override
     public String[] types() {
-        List<String> list = engine.get().getFactory().getNames();
+        List<String> list = engine.getFactory().getNames();
         return list.toArray(new String[list.size()]);
     }
 
     @Override
     public String[] extensions() {
-        List<String> list = engine.get().getFactory().getExtensions();
+        List<String> list = engine.getFactory().getExtensions();
         return list.toArray(new String[list.size()]);
     }
 
     @Override
     public Object compile(String script) {
-        Compilable compilable = (Compilable)engine.get();
+        Compilable compilable = (Compilable)engine;
         try {
             return compilable.compile(script);
         } catch (ScriptException e) {
@@ -117,14 +114,14 @@ public class NashornScriptEngineService extends AbstractComponent implements Scr
      * @return bindings
      */
     private Bindings bind(Map<String, Object> vars) {
-        return bind(engine.get().getBindings(ScriptContext.ENGINE_SCOPE), vars);
+        return bind(new SimpleBindings(), vars);
     }
 
     private Bindings bind(Bindings bindings, Map<String, Object> vars) {
         if (vars != null) {
             for (Map.Entry<String,Object> me : vars.entrySet()) {
                 Object o = me.getValue();
-                bindings.put(me.getKey(), o instanceof List? ((List)o).toArray() : o);
+                bindings.put(me.getKey(), o instanceof List ? ((List)o).toArray() : o);
             }
         }
         return bindings;

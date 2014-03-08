@@ -7,7 +7,7 @@
 
     <groupId>org.xbib.elasticsearch.plugin</groupId>
     <artifactId>elasticsearch-lang-javascript-nashorn</artifactId>
-    <version>1.0.1.1</version>
+    <version>1.0.1.2</version>
 
     <packaging>jar</packaging>
 
@@ -62,7 +62,7 @@
         <tests.shuffle>true</tests.shuffle>
         <tests.output>onerror</tests.output>
         <tests.client.ratio></tests.client.ratio>
-        <es.logger.level>DEBUG</es.logger.level>
+        <es.logger.level>INFO</es.logger.level>
     </properties>
 
     <dependencies>

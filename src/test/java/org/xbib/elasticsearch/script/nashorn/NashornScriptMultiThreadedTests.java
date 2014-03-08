@@ -26,7 +26,7 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
         final Object compiled = se.compile("x + y");
         final AtomicBoolean failed = new AtomicBoolean();
 
-        Thread[] threads = new Thread[5];
+        Thread[] threads = new Thread[Runtime.getRuntime().availableProcessors()];
         final CountDownLatch latch = new CountDownLatch(threads.length);
         final CyclicBarrier barrier = new CyclicBarrier(threads.length + 1);
         for (int i = 0; i < threads.length; i++) {
@@ -42,7 +42,7 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
                         vars.put("x", x);
                         vars.put("y", y);
                         ExecutableScript script = se.executable(compiled, vars);
-                        for (int i = 0; i < 10000; i++) {
+                        for (int i = 0; i < 100000; i++) {
                             long result = ((Number) script.run()).longValue();
                             assertThat(result, equalTo(addition));
                         }
@@ -70,7 +70,7 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
         final Object compiled = se.compile("x + y");
         final AtomicBoolean failed = new AtomicBoolean();
 
-        Thread[] threads = new Thread[5];
+        Thread[] threads = new Thread[Runtime.getRuntime().availableProcessors()];
         final CountDownLatch latch = new CountDownLatch(threads.length);
         final CyclicBarrier barrier = new CyclicBarrier(threads.length + 1);
         for (int i = 0; i < threads.length; i++) {
@@ -83,7 +83,7 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
                         Map<String, Object> vars = new HashMap<String, Object>();
                         vars.put("x", x);
                         ExecutableScript script = se.executable(compiled, vars);
-                        for (int i = 0; i < 10000; i++) {
+                        for (int i = 0; i < 100000; i++) {
                             long y = ThreadLocalRandom.current().nextInt();
                             long addition = x + y;
                             script.setNextVar("y", y);
@@ -107,13 +107,18 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
         assertThat(failed.get(), equalTo(false));
     }
 
+    /**
+     * TODO execute() very poor performance ...
+     *
+     * @throws Exception
+     */
     @Test
     public void testExecute() throws Exception {
         final NashornScriptEngineService se = new NashornScriptEngineService(ImmutableSettings.Builder.EMPTY_SETTINGS);
         final Object compiled = se.compile("x + y");
         final AtomicBoolean failed = new AtomicBoolean();
 
-        Thread[] threads = new Thread[5];
+        Thread[] threads = new Thread[Runtime.getRuntime().availableProcessors()];
         final CountDownLatch latch = new CountDownLatch(threads.length);
         final CyclicBarrier barrier = new CyclicBarrier(threads.length + 1);
         for (int i = 0; i < threads.length; i++) {
@@ -123,7 +128,7 @@ public class NashornScriptMultiThreadedTests extends ElasticsearchTestCase {
                     try {
                         barrier.await();
                         Map<String, Object> runtimeVars = new HashMap<String, Object>();
-                        for (int i = 0; i < 10000; i++) {
+                        for (int i = 0; i < 1000; i++) {
                             long x = ThreadLocalRandom.current().nextInt();
                             long y = ThreadLocalRandom.current().nextInt();
                             long addition = x + y;

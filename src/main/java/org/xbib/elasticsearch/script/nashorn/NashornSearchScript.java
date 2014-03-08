@@ -25,24 +25,27 @@ import org.elasticsearch.search.lookup.SearchLookup;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 import java.util.Map;
 
 /**
  *
  */
-public class NashornSearchScript  implements SearchScript {
+public class NashornSearchScript implements SearchScript {
 
     private final SearchLookup lookup;
 
     private final CompiledScript script;
 
-    private final Bindings bindings;
+    private final ScriptContext context;
 
     public NashornSearchScript(SearchLookup lookup, CompiledScript script, Bindings bindings) {
         this.lookup = lookup;
         this.script = script;
-        this.bindings = bindings;
+        this.context = new SimpleScriptContext();
+        context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
     }
 
     @Override
@@ -62,12 +65,12 @@ public class NashornSearchScript  implements SearchScript {
 
     @Override
     public void setNextScore(float score) {
-        bindings.put("_score", score);
+        context.getBindings(ScriptContext.ENGINE_SCOPE).put("_score", score);
     }
 
     @Override
     public void setNextVar(String name, Object value) {
-        bindings.put(name, value);
+        context.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
     }
 
     @Override
@@ -78,7 +81,7 @@ public class NashornSearchScript  implements SearchScript {
     @Override
     public Object run() {
         try {
-            return script.eval(bindings);
+            return script.eval(context);
         } catch (ScriptException e) {
             throw new org.elasticsearch.script.ScriptException(e.getMessage(), e);
         }

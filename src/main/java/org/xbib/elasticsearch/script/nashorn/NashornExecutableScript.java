@@ -22,7 +22,9 @@ import org.elasticsearch.script.ExecutableScript;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 
 /**
  *
@@ -31,22 +33,23 @@ public class NashornExecutableScript  implements ExecutableScript {
 
     private final CompiledScript script;
 
-    private final Bindings bindings;
+    private final ScriptContext context;
 
     public NashornExecutableScript(CompiledScript script, Bindings bindings) {
         this.script = script;
-        this.bindings = bindings;
+        this.context = new SimpleScriptContext();
+        context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
     }
 
     @Override
     public void setNextVar(String name, Object value) {
-        bindings.put(name, value);
+        context.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
     }
 
     @Override
     public Object run() {
         try {
-            return script.eval(bindings);
+            return script.eval(context);
         } catch (ScriptException e) {
             throw new org.elasticsearch.script.ScriptException(e.getMessage(), e);
         }
