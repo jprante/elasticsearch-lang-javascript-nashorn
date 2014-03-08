@@ -10,7 +10,7 @@ as a basis to extend Elasticsearch scripting by other JSR 223 languages.
 Installation
 ------------
 
-Prequisites
+Prerequisites
 
 - Elasticsearch 1.0.0+
 - Java 8
