@@ -7,6 +7,12 @@ ECMAScript-262 Edition 5.1 ("Javascript") for the Java 8 VM.
 The integration is implemented by JSR 223. It should be easy to reuse the source code of this plugin
 as a basis to extend Elasticsearch scripting by other JSR 223 languages.
 
+------------------------------------------------------------
+**Note: the current status of this plugin is experimental.**
+**There are unresolved issues with multithread performance**
+**in Nashorn's JSR 223.                                   **
+------------------------------------------------------------
+
 Installation
 ------------
 
