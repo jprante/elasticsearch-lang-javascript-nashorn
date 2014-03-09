@@ -26,26 +26,18 @@ import org.elasticsearch.search.lookup.SearchLookup;
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
-import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
 import java.util.Map;
 
 /**
  *
  */
-public class NashornSearchScript implements SearchScript {
+public class NashornSearchScript extends NashornExecutableScript implements SearchScript {
 
     private final SearchLookup lookup;
 
-    private final CompiledScript script;
-
-    private final ScriptContext context;
-
     public NashornSearchScript(SearchLookup lookup, CompiledScript script, Bindings bindings) {
+    	super(script, bindings);
         this.lookup = lookup;
-        this.script = script;
-        this.context = new SimpleScriptContext();
-        context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
     }
 
     @Override
@@ -65,26 +57,12 @@ public class NashornSearchScript implements SearchScript {
 
     @Override
     public void setNextScore(float score) {
-        context.getBindings(ScriptContext.ENGINE_SCOPE).put("_score", score);
-    }
-
-    @Override
-    public void setNextVar(String name, Object value) {
-        context.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
+        context.getBindings(ScriptContext.GLOBAL_SCOPE).put("_score", score);
     }
 
     @Override
     public void setNextSource(Map<String, Object> source) {
         lookup.source().setNextSource(source);
-    }
-
-    @Override
-    public Object run() {
-        try {
-            return script.eval(context);
-        } catch (ScriptException e) {
-            throw new org.elasticsearch.script.ScriptException(e.getMessage(), e);
-        }
     }
 
     @Override
@@ -100,10 +78,5 @@ public class NashornSearchScript implements SearchScript {
     @Override
     public double runAsDouble() {
         return ((Number) run()).doubleValue();
-    }
-
-    @Override
-    public Object unwrap(Object value) {
-        return NashornUnwrapper.unwrapValue(value);
     }
 }

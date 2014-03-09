@@ -30,15 +30,14 @@ import org.elasticsearch.search.lookup.SearchLookup;
 import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
-import javax.script.SimpleScriptContext;
 
 import java.util.List;
 import java.util.Map;
+
+import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
 /**
  *
@@ -50,8 +49,14 @@ public class NashornScriptEngineService extends AbstractComponent implements Scr
     @Inject
     public NashornScriptEngineService(Settings settings) {
         super(settings);
-        ScriptEngineManager manager = new ScriptEngineManager();
-        this.engine = manager.getEngineByName("nashorn");
+        // setup the engine to share the definition of the Ecma script built-in objects: aka NashornGlobal.
+//      System.setProperty("nashorn.args", "--global-per-engine");
+//      ScriptEngineManager m = new ScriptEngineManager();
+//      this.engine = m.getEngineByName("nashorn");
+        // changing a system property is not allowed by the tests.
+        // Use the internal API instead
+        NashornScriptEngineFactory factory = new NashornScriptEngineFactory();
+        this.engine = factory.getScriptEngine(new String[] { "--global-per-engine" });
     }
 
     @Override

@@ -29,21 +29,21 @@ import javax.script.SimpleScriptContext;
 /**
  *
  */
-public class NashornExecutableScript  implements ExecutableScript {
+public class NashornExecutableScript implements ExecutableScript {
 
     private final CompiledScript script;
 
-    private final ScriptContext context;
+    protected final ScriptContext context;
 
     public NashornExecutableScript(CompiledScript script, Bindings bindings) {
         this.script = script;
         this.context = new SimpleScriptContext();
-        context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+        context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
     }
 
     @Override
     public void setNextVar(String name, Object value) {
-        context.getBindings(ScriptContext.ENGINE_SCOPE).put(name, value);
+        context.getBindings(ScriptContext.GLOBAL_SCOPE).put(name, value);
     }
 
     @Override
